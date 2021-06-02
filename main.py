@@ -8,8 +8,8 @@ DOWN_TREND = "down"
 UP_TREND = "up"
 
 if __name__ == "__main__":
-    price = valr.market_summary()["lastTradedPrice"]
-
+    market_summary = valr.market_summary()
+    price = market_summary["lastTradedPrice"]
     redis_lib.save_price(price)
 
     long_periods, short_periods = 20, 5

@@ -45,6 +45,13 @@ def balances():
     return response.json()
 
 
+def balance(currency) -> float:
+    b_list = balances()
+    for b in b_list:
+        if b['currency'] == currency:
+            return float(b['available'])
+
+
 if __name__ == "__main__":
     print("MARKET SUMMARY")
     print(market_summary())
