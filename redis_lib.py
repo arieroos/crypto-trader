@@ -36,3 +36,11 @@ def last_prices(n: int) -> list[int]:
         t = t - timedelta(hours=1)
 
     return res
+
+
+def save_trend(trend: str):
+    connection().set(gen_key("trend"), trend)
+
+
+def last_trend() -> str:
+    return connection().get(gen_key("trend"))
