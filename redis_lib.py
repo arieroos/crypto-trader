@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import redis as redis
+import redis
 
 
 def gen_key(name: str) -> str:
