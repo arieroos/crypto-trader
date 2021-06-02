@@ -5,8 +5,10 @@ import hmac
 import requests
 
 
+# As copied from VALR API example
 def gen_signature(api_key_secret, timestamp, verb, path, body=""):
-    """Signs the request payload using the api key secret
+    """
+    Signs the request payload using the api key secret
     api_key_secret - the api key secret
     timestamp - the unix timestamp of this request e.g. int(time.time()*1000)
     verb - Http verb - GET, POST, PUT or DELETE
