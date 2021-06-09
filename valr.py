@@ -1,6 +1,7 @@
 import os
 import hashlib
 import hmac
+import time
 
 import orjson
 import requests
@@ -69,9 +70,16 @@ def sell_at_market():
     }
     body_str = orjson.dumps(body).decode("utf-8")
     path = f"{VERSION}/orders/market"
-    headers = gen_headers("POST", "", body_str)
+    headers = gen_headers("POST", path, body_str)
 
-    requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
+    resp = requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
+    order_id = resp.json()["id"]
+    time.sleep(1)  # allow order to be filled
+
+    path = f"{VERSION}/orders/BTCZAR/orderid/{order_id}"
+    headers = gen_headers("GET", path)
+    resp = requests.get(url=f"{URL}{path}", headers=headers)
+    return float(resp.json()["originalPrice"])
 
 
 if __name__ == "__main__":

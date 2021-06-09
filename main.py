@@ -1,4 +1,5 @@
 import statistics
+from datetime import datetime
 
 import redis_lib
 import valr
@@ -9,8 +10,8 @@ UP_TREND = "up"
 
 
 def open_sell_position():
-    # sell at market
-    # calculate 0.98 * sell price = price_i_want
+    sell_price = valr.sell_at_market()
+    buy_price = 0.98 * sell_price
     # while
     #   place buy order
     #   check success
@@ -35,6 +36,8 @@ def close_sell_position():
 
 
 if __name__ == "__main__":
+    print(datetime.now())
+
     market_summary = valr.market_summary()
     price = market_summary["lastTradedPrice"]
     redis_lib.save_price(price)
