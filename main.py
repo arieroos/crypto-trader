@@ -18,6 +18,7 @@ if __name__ == "__main__":
         print("incomplete data, not trading")
         redis_lib.save_trend(UNKNOWN_TREND)
         exit()
+    print(f"long prices: {long_prices}")
 
     long_mean, short_mean = statistics.mean(long_prices), statistics.mean(short_prices)
 

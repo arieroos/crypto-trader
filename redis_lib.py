@@ -43,4 +43,4 @@ def save_trend(trend: str):
 
 
 def last_trend() -> str:
-    return connection().get(gen_key("trend"))
+    return connection().get(gen_key("trend")).decode('utf-8')
