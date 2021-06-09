@@ -4,6 +4,9 @@ import hmac
 
 import requests
 
+URL = "https://api.valr.com"
+VERSION = "/v1"
+
 
 # As copied from VALR API example
 def gen_signature(api_key_secret, timestamp, verb, path, body=""):
@@ -22,7 +25,7 @@ def gen_signature(api_key_secret, timestamp, verb, path, body=""):
 
 
 def gen_headers(method, path):
-    server_time_json = requests.get("https://api.valr.com/v1/public/time").json()
+    server_time_json = requests.get(f"{URL}{VERSION}/public/time").json()
 
     timestamp = server_time_json["epochTime"] * 1000
     secret = gen_signature(os.environ["VALR_API_SECRET"], timestamp, method, path)
@@ -35,13 +38,14 @@ def gen_headers(method, path):
 
 
 def market_summary():
-    response = requests.get("https://api.valr.com/v1/public/BTCZAR/marketsummary")
+    response = requests.get(f"{URL}{VERSION}/public/BTCZAR/marketsummary")
     return response.json()
 
 
 def balances():
-    headers = gen_headers("GET", "/v1/account/balances")
-    response = requests.get("https://api.valr.com/v1/account/balances", headers=headers)
+    path = f"{VERSION}/account/balances"
+    headers = gen_headers("GET", path)
+    response = requests.get(f"{URL}{path}", headers=headers)
     return response.json()
 
 
