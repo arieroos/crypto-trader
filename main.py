@@ -29,6 +29,8 @@ if __name__ == "__main__":
     else:
         trend = last_trend
     redis_lib.save_trend(trend)
+    print(f"Last trend: {last_trend}")
+    print(f"Current trend: {trend}")
 
     if trend == last_trend or last_trend == UNKNOWN_TREND:
         print("No change in trend: not trading")
