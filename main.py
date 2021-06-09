@@ -7,6 +7,33 @@ UNKNOWN_TREND = "unknown"
 DOWN_TREND = "down"
 UP_TREND = "up"
 
+
+def open_sell_position():
+    # sell at market
+    # calculate 0.98 * sell price = price_i_want
+    # while
+    #   place buy order
+    #   check success
+    #   if success
+    #       break loop
+    #   else
+    #       if any sell order at or below my price
+    #           buy
+    #           break loop
+    #       elif trend is up
+    #           buy at market
+    #           break loop
+    #       else
+    #           wait 4 seconds
+    pass
+
+
+def close_sell_position():
+    # close any unfilled buy orders
+    # buy at market
+    pass
+
+
 if __name__ == "__main__":
     market_summary = valr.market_summary()
     price = market_summary["lastTradedPrice"]
@@ -37,6 +64,6 @@ if __name__ == "__main__":
         print("No change in trend: not trading")
         exit()
     if trend == UP_TREND:
-        print("BUY SIGNAL")
+        close_sell_position()
     elif trend == DOWN_TREND:
-        print("SELL SIGNAL")
+        open_sell_position()
