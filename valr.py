@@ -2,6 +2,7 @@ import os
 import hashlib
 import hmac
 
+import orjson
 import requests
 
 URL = "https://api.valr.com"
@@ -24,17 +25,20 @@ def gen_signature(api_key_secret, timestamp, verb, path, body=""):
     return signature
 
 
-def gen_headers(method, path):
+def gen_headers(method, path, body=""):
     server_time_json = requests.get(f"{URL}{VERSION}/public/time").json()
 
     timestamp = server_time_json["epochTime"] * 1000
-    secret = gen_signature(os.environ["VALR_API_SECRET"], timestamp, method, path)
+    secret = gen_signature(os.environ["VALR_API_SECRET"], timestamp, method, path, body)
 
-    return {
+    headers = {
         "X-VALR-API-KEY": os.environ["VALR_API_KEY"],
         "X-VALR-SIGNATURE": secret,
         "X-VALR-TIMESTAMP": str(timestamp),
     }
+    if len(body) > 0:
+        headers["Content-Type"] = "application/json"
+    return headers
 
 
 def market_summary():
@@ -56,8 +60,24 @@ def balance(currency) -> float:
             return float(b['available'])
 
 
+def sell_at_market():
+    amt = balance("BTC")
+    body = {
+        "side": "SELL",
+        "amount": f"{amt:.8f}",
+        "pair": "BTCZAR",
+    }
+    body_str = orjson.dumps(body).decode("utf-8")
+    path = f"{VERSION}/orders/market"
+    headers = gen_headers("POST", "", body_str)
+
+    requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
+
+
 if __name__ == "__main__":
     print("MARKET SUMMARY")
     print(market_summary())
     print("BALANCES")
     print(balances())
+    print("BTC BALANCE")
+    print(f'{balance("BTC"):.8f}')
