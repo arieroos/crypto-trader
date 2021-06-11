@@ -134,6 +134,27 @@ def lowest_ask() -> float:
     return min([float(ask["price"]) for ask in asks])
 
 
+def close_order(oid: str):
+    body = {
+        "orderId": oid,
+        "pair": "BTCZAR",
+    }
+    body_str = orjson.dumps(body).decode("utf-8")
+    path = f"{VERSION}/orders/order"
+    headers = gen_headers("DELETE", path, body_str)
+    requests.delete(f"{URL}{path}")
+
+
+def close_open_buys():
+    path = f"{VERSION}/orders/open"
+    headers = gen_headers("GET", path)
+    resp = requests.get(path, headers=headers)
+    orders = orjson.loads(resp.text)
+    for order in orders:
+        if order["side"].upper() == "BUY":
+            close_order(order["orderId"])
+
+
 if __name__ == "__main__":
     print("MARKET SUMMARY")
     print(market_summary())

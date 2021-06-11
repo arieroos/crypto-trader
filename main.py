@@ -30,13 +30,12 @@ def open_short_position():
                 sec_wait = 5
                 print(f"Unfavourable market, trying again in {sec_wait} seconds")
                 time.sleep(sec_wait)
-    pass
 
 
-def close_short_position():
-    # close any unfilled buy orders
-    # buy at market
-    pass
+def close_short_positions():
+    valr.close_open_buys()
+    bp = valr.buy_at_market()
+    print(f"Bought at {bp}")
 
 
 if __name__ == "__main__":
@@ -71,6 +70,8 @@ if __name__ == "__main__":
         print("No change in trend: not trading")
         exit()
     if trend == UP_TREND:
-        close_short_position()
+        print("BUY SIGNAL: closing short positions")
+        close_short_positions()
     elif trend == DOWN_TREND:
+        print("SELL SIGNAL: opening short position")
         open_short_position()
