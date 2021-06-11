@@ -68,13 +68,7 @@ def order_summary(oid: str) -> dict:
     return orjson.loads(resp.text)
 
 
-def sell_at_market():
-    amt = balance("BTC")
-    body = {
-        "side": "SELL",
-        "baseAmount": f"{amt:.8f}",
-        "pair": "BTCZAR",
-    }
+def market_order_req(body):
     body_str = orjson.dumps(body).decode("utf-8")
     path = f"{VERSION}/orders/market"
     headers = gen_headers("POST", path, body_str)
@@ -84,6 +78,26 @@ def sell_at_market():
     time.sleep(1)  # allow order to be filled
 
     return float(order_summary(order_id)["averagePrice"])
+
+
+def buy_at_market():
+    amt = balance("ZAR")
+    body = {
+        "side": "BUY",
+        "quoteAmount": f"{amt:.2f}",
+        "pair": "BTCZAR",
+    }
+    return market_order_req(body)
+
+
+def sell_at_market():
+    amt = balance("BTC")
+    body = {
+        "side": "SELL",
+        "baseAmount": f"{amt:.8f}",
+        "pair": "BTCZAR",
+    }
+    return market_order_req(body)
 
 
 def buy_order(price: int):

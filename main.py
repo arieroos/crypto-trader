@@ -11,7 +11,7 @@ DOWN_TREND = "down"
 UP_TREND = "up"
 
 
-def open_sell_position():
+def open_short_position():
     sell_price = valr.sell_at_market()
     print(f"Sold at {sell_price}")
     buy_price = int(math.ceil(0.98 * sell_price))
@@ -22,19 +22,16 @@ def open_sell_position():
             print(f"Buy order successfully placed: {oid}")
             break
         else:
-            if valr.lowest_ask() <= buy_price:
-                # buy
+            if valr.lowest_ask() <= buy_price or redis_lib.last_trend() == UP_TREND:
+                actual_buy_price = valr.buy_at_market()
+                print(f"Bought at {actual_buy_price}")
                 break
-            #    elif trend is up
-            #        buy at market
-            #        break loop
-            #    else
-            #        wait 4 seconds
-            time.sleep(4)
+            else:
+                time.sleep(4)
     pass
 
 
-def close_sell_position():
+def close_short_position():
     # close any unfilled buy orders
     # buy at market
     pass
@@ -72,6 +69,6 @@ if __name__ == "__main__":
         print("No change in trend: not trading")
         exit()
     if trend == UP_TREND:
-        close_sell_position()
+        close_short_position()
     elif trend == DOWN_TREND:
-        open_sell_position()
+        open_short_position()
