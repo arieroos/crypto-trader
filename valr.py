@@ -76,10 +76,10 @@ def sell_at_market():
     order_id = resp.json()["id"]
     time.sleep(1)  # allow order to be filled
 
-    path = f"{VERSION}/orders/BTCZAR/orderid/{order_id}"
+    path = f"{VERSION}/orders/history/summary/orderid/{order_id}"
     headers = gen_headers("GET", path)
     resp = requests.get(url=f"{URL}{path}", headers=headers)
-    return float(resp.json()["originalPrice"])
+    return float(resp.json()["averagePrice"])
 
 
 if __name__ == "__main__":
