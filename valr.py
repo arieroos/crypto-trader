@@ -65,7 +65,7 @@ def sell_at_market():
     amt = balance("BTC")
     body = {
         "side": "SELL",
-        "amount": f"{amt:.8f}",
+        "baseAmount": f"{amt:.8f}",
         "pair": "BTCZAR",
     }
     body_str = orjson.dumps(body).decode("utf-8")
@@ -80,6 +80,22 @@ def sell_at_market():
     headers = gen_headers("GET", path)
     resp = requests.get(url=f"{URL}{path}", headers=headers)
     return float(resp.json()["averagePrice"])
+
+
+def buy_order(price: int):
+    qty = balance("ZAR") / price
+    body = {
+        "side": "BUY",
+        "quantity": f"{qty:.8f}",
+        "price": str(price),
+        "pair": "BTCZAR",
+    }
+    body_str = orjson.dumps(body).decode('utf-8')
+    path = f"{VERSION}/orders/limit"
+    headers = gen_headers("POST", path, body_str)
+
+    resp = requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
+    return resp.json()["id"]
 
 
 if __name__ == "__main__":

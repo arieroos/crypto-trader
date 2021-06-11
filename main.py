@@ -1,3 +1,4 @@
+import math
 import statistics
 from datetime import datetime
 
@@ -11,9 +12,11 @@ UP_TREND = "up"
 
 def open_sell_position():
     sell_price = valr.sell_at_market()
-    buy_price = 0.98 * sell_price
-    # while
-    #   place buy order
+    print(f"Sold at {sell_price}")
+    buy_price = int(math.ceil(0.98 * sell_price))
+    while True:
+        print(f"Attempting to buy at {buy_price}")
+        oid = valr.buy_order(buy_price)
     #   check success
     #   if success
     #       break loop
