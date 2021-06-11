@@ -82,6 +82,9 @@ def market_order_req(body):
 
 def buy_at_market():
     amt = balance("ZAR")
+    if amt == 0:
+        raise Exception("Trying to buy 0 ZAR of bitcoin?")
+
     body = {
         "side": "BUY",
         "quoteAmount": f"{amt:.2f}",
@@ -92,6 +95,9 @@ def buy_at_market():
 
 def sell_at_market():
     amt = balance("BTC")
+    if amt == 0:
+        raise Exception("Trying to sell 0 bitcoin?")
+
     body = {
         "side": "SELL",
         "baseAmount": f"{amt:.8f}",
@@ -100,8 +106,11 @@ def sell_at_market():
     return market_order_req(body)
 
 
-def buy_order(price: int):
+def buy_order(price: int) -> str:
     qty = balance("ZAR") / price
+    if qty == 0:
+        raise Exception("Trying to buy 0 bitcoin?")
+
     body = {
         "side": "BUY",
         "quantity": f"{qty:.8f}",

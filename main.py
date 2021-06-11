@@ -23,8 +23,11 @@ def open_short_position():
             break
         else:
             if valr.lowest_ask() <= buy_price or redis_lib.last_trend() == UP_TREND:
-                actual_buy_price = valr.buy_at_market()
-                print(f"Bought at {actual_buy_price}")
+                try:
+                    actual_buy_price = valr.buy_at_market()
+                    print(f"Bought at {actual_buy_price}")
+                except Exception as err:
+                    print(f"{type(err)}: {err}")
                 break
             else:
                 sec_wait = 5
@@ -34,8 +37,11 @@ def open_short_position():
 
 def close_short_positions():
     valr.close_open_buys()
-    bp = valr.buy_at_market()
-    print(f"Bought at {bp}")
+    try:
+        bp = valr.buy_at_market()
+        print(f"Bought at {bp}")
+    except Exception as err:
+        print(f"{type(err)}: {err}")
 
 
 if __name__ == "__main__":
