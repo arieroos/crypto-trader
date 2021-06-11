@@ -27,7 +27,9 @@ def open_short_position():
                 print(f"Bought at {actual_buy_price}")
                 break
             else:
-                time.sleep(4)
+                sec_wait = 5
+                print(f"Unfavourable market, trying again in {sec_wait} seconds")
+                time.sleep(sec_wait)
     pass
 
 
