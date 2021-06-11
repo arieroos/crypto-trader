@@ -22,9 +22,9 @@ def open_sell_position():
             print(f"Buy order successfully placed: {oid}")
             break
         else:
-            # if any sell order at or below my price
-            #        buy
-            #        break loop
+            if valr.lowest_ask() <= buy_price:
+                # buy
+                break
             #    elif trend is up
             #        buy at market
             #        break loop

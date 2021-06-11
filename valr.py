@@ -106,6 +106,20 @@ def order_placed(oid: str) -> bool:
     return not order_summary(oid).get("failedReason", "")
 
 
+def lowest_ask() -> float:
+    path = f"{VERSION}/marketdata/BTCZAR/orderbook"
+    headers = gen_headers("GET", path)
+    resp = requests.get(f'{URL}{path}', headers=headers)
+
+    asks = orjson.loads(resp.text)["Asks"]
+    if len(asks) == 0:
+        print("No ASKS returned from VALR")
+        raise Exception()
+
+    # According to VALR spec, asks[0] should be the lowest ask, but I do not trust that enough to not check
+    return min([float(ask["price"]) for ask in asks])
+
+
 if __name__ == "__main__":
     print("MARKET SUMMARY")
     print(market_summary())
