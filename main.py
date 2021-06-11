@@ -1,5 +1,6 @@
 import math
 import statistics
+import time
 from datetime import datetime
 
 import redis_lib
@@ -20,15 +21,16 @@ def open_sell_position():
         if valr.order_placed(oid):
             print(f"Buy order successfully placed: {oid}")
             break
-    #   else
-    #       if any sell order at or below my price
-    #           buy
-    #           break loop
-    #       elif trend is up
-    #           buy at market
-    #           break loop
-    #       else
-    #           wait 4 seconds
+        else:
+            # if any sell order at or below my price
+            #        buy
+            #        break loop
+            #    elif trend is up
+            #        buy at market
+            #        break loop
+            #    else
+            #        wait 4 seconds
+            time.sleep(4)
     pass
 
 
