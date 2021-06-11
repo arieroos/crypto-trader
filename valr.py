@@ -61,6 +61,13 @@ def balance(currency) -> float:
             return float(b['available'])
 
 
+def order_summary(oid: str) -> dict:
+    path = f"{VERSION}/orders/history/summary/orderid/{oid}"
+    headers = gen_headers("GET", path)
+    resp = requests.get(url=f"{URL}{path}", headers=headers)
+    return orjson.loads(resp.text)
+
+
 def sell_at_market():
     amt = balance("BTC")
     body = {
@@ -76,10 +83,7 @@ def sell_at_market():
     order_id = resp.json()["id"]
     time.sleep(1)  # allow order to be filled
 
-    path = f"{VERSION}/orders/history/summary/orderid/{order_id}"
-    headers = gen_headers("GET", path)
-    resp = requests.get(url=f"{URL}{path}", headers=headers)
-    return float(resp.json()["averagePrice"])
+    return float(order_summary(order_id)["averagePrice"])
 
 
 def buy_order(price: int):
@@ -96,6 +100,10 @@ def buy_order(price: int):
 
     resp = requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
     return resp.json()["id"]
+
+
+def order_placed(oid: str) -> bool:
+    return not order_summary(oid).get("failedReason", "")
 
 
 if __name__ == "__main__":

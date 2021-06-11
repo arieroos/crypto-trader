@@ -17,9 +17,9 @@ def open_sell_position():
     while True:
         print(f"Attempting to buy at {buy_price}")
         oid = valr.buy_order(buy_price)
-    #   check success
-    #   if success
-    #       break loop
+        if valr.order_placed(oid):
+            print(f"Buy order successfully placed: {oid}")
+            break
     #   else
     #       if any sell order at or below my price
     #           buy
