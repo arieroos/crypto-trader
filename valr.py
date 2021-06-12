@@ -9,6 +9,8 @@ import requests
 URL = "https://api.valr.com"
 VERSION = "/v1"
 
+previous_signatures = set()
+
 
 # As copied from VALR API example
 def gen_signature(api_key_secret, timestamp, verb, path, body=""):
@@ -30,11 +32,14 @@ def gen_headers(method, path, body=""):
     server_time_json = requests.get(f"{URL}{VERSION}/public/time").json()
 
     timestamp = server_time_json["epochTime"] * 1000
-    secret = gen_signature(os.environ["VALR_API_SECRET"], timestamp, method, path, body)
+    signature = gen_signature(os.environ["VALR_API_SECRET"], timestamp, method, path, body)
+    while signature in previous_signatures:
+        timestamp += 1
+        signature = gen_signature(os.environ["VALR_API_SECRET"], timestamp, method, path, body)
 
     headers = {
         "X-VALR-API-KEY": os.environ["VALR_API_KEY"],
-        "X-VALR-SIGNATURE": secret,
+        "X-VALR-SIGNATURE": signature,
         "X-VALR-TIMESTAMP": str(timestamp),
     }
     if len(body) > 0:
@@ -56,6 +61,7 @@ def balances():
     path = f"{VERSION}/account/balances"
     headers = gen_headers("GET", path)
     response = requests.get(f"{URL}{path}", headers=headers)
+    check_response(response)
     return response.json()
 
 
