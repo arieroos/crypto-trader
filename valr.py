@@ -36,6 +36,7 @@ def gen_headers(method, path, body=""):
     while signature in previous_signatures:
         timestamp += 1
         signature = gen_signature(os.environ["VALR_API_SECRET"], timestamp, method, path, body)
+    previous_signatures.add(signature)
 
     headers = {
         "X-VALR-API-KEY": os.environ["VALR_API_KEY"],
