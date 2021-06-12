@@ -86,7 +86,10 @@ def market_order_req(body):
 
     resp = requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
     check_response(resp)
-    order_id = resp.json()["id"]
+    try:
+        order_id = orjson.loads(resp.text)["id"]
+    except KeyError:
+        raise Exception(orjson.loads(resp.text)["message"])
     time.sleep(1)  # allow order to be filled
 
     return float(order_summary(order_id)["averagePrice"])
@@ -183,3 +186,12 @@ if __name__ == "__main__":
     print(balances())
     print("BTC BALANCE")
     print(f'{balance("BTC"):.8f}')
+
+    import sys
+    if "test-market-sell-buy" in sys.argv:
+        print("SELLING AT AT MARKET")
+        p = sell_at_market()
+        print(f"sold at {p}")
+        print("BUYING AT MARKET")
+        p = buy_at_market()
+        print(f'bought at {p}')
