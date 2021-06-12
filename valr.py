@@ -42,6 +42,11 @@ def gen_headers(method, path, body=""):
     return headers
 
 
+def check_response(resp: requests.Response):
+    if resp.status_code > 400:
+        raise Exception(f"Request {resp.request.url} failed with {resp.status_code}.\nBody: {resp.text}")
+
+
 def market_summary():
     response = requests.get(f"{URL}{VERSION}/public/BTCZAR/marketsummary")
     return response.json()
@@ -74,6 +79,7 @@ def market_order_req(body):
     headers = gen_headers("POST", path, body_str)
 
     resp = requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
+    check_response(resp)
     order_id = resp.json()["id"]
     time.sleep(1)  # allow order to be filled
 
@@ -151,7 +157,7 @@ def close_order(oid: str):
     body_str = orjson.dumps(body).decode("utf-8")
     path = f"{VERSION}/orders/order"
     headers = gen_headers("DELETE", path, body_str)
-    requests.delete(f"{URL}{path}")
+    requests.delete(f"{URL}{path}", headers=headers)
 
 
 def close_open_buys():
