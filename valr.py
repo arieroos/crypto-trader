@@ -6,6 +6,8 @@ import time
 import orjson
 import requests
 
+import extra_math
+
 URL = "https://api.valr.com"
 VERSION = "/v1"
 
@@ -100,7 +102,9 @@ def buy_at_market():
     amt = balance("ZAR")
     if amt == 0:
         raise Exception("Trying to buy 0 ZAR of bitcoin?")
+    print(f"Buying at market for R{amt}")
 
+    amt = extra_math.floor_n(amt, 2)
     body = {
         "side": "BUY",
         "quoteAmount": f"{amt:.2f}",
@@ -113,7 +117,9 @@ def sell_at_market():
     amt = balance("BTC")
     if amt == 0:
         raise Exception("Trying to sell 0 bitcoin?")
+    print(f"Selling {amt} BTC at market")
 
+    amt = extra_math.floor_n(amt, 8)
     body = {
         "side": "SELL",
         "baseAmount": f"{amt:.8f}",
@@ -127,6 +133,7 @@ def buy_order(price: int) -> str:
     if qty == 0:
         raise Exception("Trying to buy 0 bitcoin?")
 
+    qty = extra_math.floor_n(qty, 8)
     body = {
         "side": "BUY",
         "quantity": f"{qty:.8f}",
