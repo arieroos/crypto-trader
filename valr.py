@@ -95,7 +95,11 @@ def market_order_req(body):
         raise Exception(orjson.loads(resp.text)["message"])
     time.sleep(1)  # allow order to be filled
 
-    return float(order_summary(order_id)["averagePrice"])
+    o_sum = order_summary(order_id)
+    failure = o_sum["failedReason"]
+    if len(failure) > 0:
+        raise Exception(f"Order failed: {failure}")
+    return float(o_sum["averagePrice"])
 
 
 def buy_at_market():
