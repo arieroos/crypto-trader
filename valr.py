@@ -173,7 +173,7 @@ def close_order(oid: str):
 def close_open_buys():
     path = f"{VERSION}/orders/open"
     headers = gen_headers("GET", path)
-    resp = requests.get(path, headers=headers)
+    resp = requests.get(f"{URL}{path}", headers=headers)
     orders = orjson.loads(resp.text)
     for order in orders:
         if order["side"].upper() == "BUY":
