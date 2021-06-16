@@ -178,26 +178,37 @@ def close_order(oid: str):
     body_str = orjson.dumps(body).decode("utf-8")
     path = f"{VERSION}/orders/order"
     headers = gen_headers("DELETE", path, body_str)
-    requests.delete(f"{URL}{path}", headers=headers)
+    resp = requests.delete(f"{URL}{path}", data=body_str, headers=headers)
+    check_response(resp)
 
 
-def close_open_buys():
+def get_open_orders():
     path = f"{VERSION}/orders/open"
     headers = gen_headers("GET", path)
     resp = requests.get(f"{URL}{path}", headers=headers)
-    orders = orjson.loads(resp.text)
-    for order in orders:
+    return orjson.loads(resp.text)
+
+
+def close_open_buys():
+    for order in get_open_orders():
         if order["side"].upper() == "BUY":
+            print(f"Found order to close: {order['orderId']}")
             close_order(order["orderId"])
 
 
 if __name__ == "__main__":
     print("MARKET SUMMARY")
     print(market_summary())
+    print()
     print("BALANCES")
     print(balances())
+    print()
     print("BTC BALANCE")
     print(f'{balance("BTC"):.8f}')
+    print()
+    print("OPEN ORDERS")
+    print(get_open_orders())
+    print()
 
     import sys
     if "test-market-sell-buy" in sys.argv:
@@ -207,3 +218,7 @@ if __name__ == "__main__":
         print("BUYING AT MARKET")
         p = buy_at_market()
         print(f'bought at {p}')
+
+    if "test-order-closing" in sys.argv:
+        print("CLOSING ORDERS")
+        close_open_buys()
