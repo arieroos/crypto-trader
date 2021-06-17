@@ -1,8 +1,10 @@
 import math
 import statistics
+import sys
 import time
 from datetime import datetime
 
+import error_handler
 import redis_lib
 import valr
 
@@ -45,6 +47,8 @@ def close_short_positions():
 
 
 if __name__ == "__main__":
+    sys.excepthook = error_handler.excepthook
+
     print(datetime.now())
 
     market_summary = valr.market_summary()
