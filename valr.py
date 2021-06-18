@@ -57,6 +57,7 @@ def check_response(resp: requests.Response):
 
 def market_summary():
     response = requests.get(f"{URL}{VERSION}/public/BTCZAR/marketsummary")
+    check_response(response)
     return response.json()
 
 
