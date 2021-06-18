@@ -51,7 +51,7 @@ if __name__ == "__main__":
     price = market_summary["lastTradedPrice"]
     redis_lib.save_price(price)
 
-    long_periods, short_periods = 20, 5
+    long_periods, short_periods = 24, 6  # TODO: config
     long_prices, short_prices = redis_lib.last_prices(20), redis_lib.last_prices(5)
     if len(long_prices) != long_periods:
         print("incomplete data, not trading")
