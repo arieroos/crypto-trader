@@ -52,7 +52,7 @@ if __name__ == "__main__":
     redis_lib.save_price(price)
 
     long_periods, short_periods = 24, 6  # TODO: config
-    long_prices, short_prices = redis_lib.last_prices(20), redis_lib.last_prices(5)
+    long_prices, short_prices = redis_lib.last_prices(long_periods), redis_lib.last_prices(short_periods)
     if len(long_prices) != long_periods:
         print("incomplete data, not trading")
         redis_lib.save_trend(UNKNOWN_TREND)
