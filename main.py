@@ -14,7 +14,7 @@ UP_TREND = "up"
 def open_short_position():
     sell_price = valr.sell_at_market()
     print(f"Sold at {sell_price}")
-    buy_price = int(math.ceil(0.98 * sell_price))
+    buy_price = int(math.ceil(0.985 * sell_price))
     while True:
         print(f"Attempting to buy at {buy_price}")
         oid = valr.buy_order(buy_price)
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     price = market_summary["lastTradedPrice"]
     redis_lib.save_price(price)
 
-    long_periods, short_periods = 24, 6  # TODO: config
+    long_periods, short_periods = 20, 5  # TODO: config
     long_prices, short_prices = redis_lib.last_prices(long_periods), redis_lib.last_prices(short_periods)
     if len(long_prices) != long_periods:
         print("incomplete data, not trading")
