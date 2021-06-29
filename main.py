@@ -43,7 +43,7 @@ def close_short_positions():
         bp = valr.buy_at_market()
         print(f"Bought at {bp}")
     except Exception as err:
-        print(f"{type(err)}: {err}")
+        error_handler.handle_exception(err)
 
 
 if __name__ == "__main__":
