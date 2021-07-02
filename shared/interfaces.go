@@ -6,32 +6,29 @@ type ExchangeAPI interface {
 	OrderSummary(orderID string) (OrderSummary, error)
 	ListOpenOrders() ([]OrderSummary, error)
 	CancelOrder(orderID string) error
-	// BuyAtMarket buys the base currency at whatever price is available on the market,
-	// using the base amount if it is not 0 or quote amount if base amount is 0.
-	BuyAtMarket(input OrderInput) (averagePrice float64, err error)
-	// SellAtMarket sells the base currency at whatever price is available on the market,
-	// using the base amount if it is not 0 or quote amount if base amount is 0.
-	SellAtMarket(input OrderInput) (averagePrice float64, err error)
-	PlaceBuyOrder(input OrderInput) (orderID string, err error)
-	PlaceSellOrder(input OrderInput) (orderID string, err error)
+	// MarketOrder buys or sells the base currency at whatever price is available on the market,
+	// using only base or quote amount.
+	MarketOrder(input OrderInput) (averagePrice float64, err error)
+	// LimitOrder places a order at a certain price point which automatically executes if the market allows for it.
+	// Both base and quote amounts need to be specified.
+	LimitOrder(input OrderInput) (orderID string, err error)
 }
 
-type Side string
-
-const (
-	SideBuy  Side = "buy"
-	SideSell Side = "sell"
-)
-
-type OrderSummary struct {
-	OrderID       string
-	Side          Side
-	Success       bool
-	FailureReason string
+type Bot interface {
+	Name() string
 }
 
-type OrderInput struct {
-	Pair        string
-	BaseAmount  float64
-	QuoteAmount float64
+type DailyBot interface {
+	Bot
+	Daily(exchange ExchangeAPI) error
+}
+
+type HourlyBot interface {
+	Bot
+	Hourly(exchange ExchangeAPI) error
+}
+
+type MinutelyBot interface {
+	Bot
+	Minutely(exchange ExchangeAPI) error
 }
