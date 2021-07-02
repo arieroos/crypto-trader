@@ -1,11 +1,11 @@
 package bots
 
 import (
-	"github.com/arieroos/crypto-trader/interfaces"
+	"github.com/arieroos/crypto-trader/shared"
 	log "github.com/sirupsen/logrus"
 )
 
-func Hourly(api interfaces.ExchangeAPI) error {
+func Hourly(api shared.ExchangeAPI) error {
 	lastPrice, err := api.LastTradedPrice("BTCZAR")
 	if err != nil {
 		return err
