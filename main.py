@@ -16,7 +16,7 @@ UP_TREND = "up"
 def open_short_position():
     sell_price = valr.sell_at_market()
     print(f"Sold at {sell_price}")
-    buy_price = int(math.ceil(0.985 * sell_price))
+    buy_price = int(math.ceil(0.988 * sell_price))
     while True:
         print(f"Attempting to buy at {buy_price}")
         oid = valr.buy_order(buy_price)
