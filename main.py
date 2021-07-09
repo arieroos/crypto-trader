@@ -16,25 +16,22 @@ UP_TREND = "up"
 def open_short_position():
     sell_price = valr.sell_at_market()
     print(f"Sold at {sell_price}")
-    buy_price = int(math.ceil(0.988 * sell_price))
-    while True:
-        print(f"Attempting to buy at {buy_price}")
-        oid = valr.buy_order(buy_price)
-        if valr.order_placed(oid):
-            print(f"Buy order successfully placed: {oid}")
-            break
-        else:
-            if valr.lowest_ask() <= buy_price or redis_lib.last_trend() == UP_TREND:
-                try:
-                    actual_buy_price = valr.buy_at_market()
-                    print(f"Bought at {actual_buy_price}")
-                except Exception as err:
-                    print(f"{type(err)}: {err}")
+    buy_price = int(math.ceil(0.95 * sell_price))
+    print(f"Attempting to buy at {buy_price}")
+    oid = valr.buy_order(buy_price)
+    if valr.order_placed(oid):
+        print(f"Buy order successfully placed: {oid}")
+
+        trailing_stop = int(math.ceil(1.01 * sell_price))
+        while redis_lib.last_trend() == DOWN_TREND:
+            market_price = float(valr.market_summary()["lastTradedPrice"])
+            if market_price >= trailing_stop:
+                close_short_positions()
                 break
             else:
-                sec_wait = 5
-                print(f"Unfavourable market, trying again in {sec_wait} seconds")
-                time.sleep(sec_wait)
+                trailing_stop = int(math.ceil(market_price * 1.01))
+                print(f"new trailing stop at {trailing_stop}")
+                time.sleep(60)
 
 
 def close_short_positions():
