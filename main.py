@@ -23,14 +23,19 @@ def open_short_position():
         print(f"Buy order successfully placed: {oid}")
 
         trailing_stop = int(math.ceil(1.01 * sell_price))
+        lowest_market_price = sell_price
         while redis_lib.last_trend() == DOWN_TREND:
             market_price = float(valr.market_summary()["lastTradedPrice"])
             if market_price >= trailing_stop:
                 close_short_positions()
                 break
             else:
-                trailing_stop = int(math.ceil(market_price * 1.01))
-                print(f"new trailing stop at {trailing_stop}")
+                if market_price < lowest_market_price:
+                    lowest_market_price = market_price
+                    trailing_stop = int(math.ceil(market_price * 1.01))
+                    print(f"new trailing stop at {trailing_stop}")
+                else:
+                    print("market did not go down, keeping stop at same level")
                 time.sleep(60)
 
 
