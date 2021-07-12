@@ -1,7 +1,10 @@
 package shared
 
+import "time"
+
 type ExchangeAPI interface {
-	LastTradedPrice(pair string) (float64, error)
+	Name() string
+	TradesFor(startExc time.Time, endInc time.Time) ([]Trade, error)
 	Balance(currency string) (float64, error)
 	OrderSummary(orderID string) (OrderSummary, error)
 	ListOpenOrders() ([]OrderSummary, error)

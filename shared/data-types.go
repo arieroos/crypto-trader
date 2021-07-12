@@ -1,5 +1,7 @@
 package shared
 
+import "time"
+
 type Side string
 
 const (
@@ -23,4 +25,9 @@ type OrderInput struct {
 	// The quote  amount to apply to the order.
 	// If the order only needs one amount, the quote amount will only be used if the base amount is exactly 0.
 	QuoteAmount float64
+}
+
+type Trade struct {
+	TradedAt time.Time
+	Price    float64
 }
