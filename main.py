@@ -16,13 +16,13 @@ UP_TREND = "up"
 def open_short_position():
     sell_price = valr.sell_at_market()
     print(f"Sold at {sell_price}")
-    buy_price = int(math.ceil(0.95 * sell_price))
+    buy_price = int(math.ceil(0.97 * sell_price))
     print(f"Attempting to buy at {buy_price}")
     oid = valr.buy_order(buy_price)
     if valr.order_placed(oid):
         print(f"Buy order successfully placed: {oid}")
 
-        trailing_stop = int(math.ceil(1.01 * sell_price))
+        trailing_stop = int(math.ceil(1.015 * sell_price))
         lowest_market_price = sell_price
         while redis_lib.last_trend() == DOWN_TREND:
             market_price = float(valr.market_summary()["lastTradedPrice"])
