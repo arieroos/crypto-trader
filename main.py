@@ -33,9 +33,7 @@ def open_short_position():
                 if market_price < lowest_market_price:
                     lowest_market_price = market_price
                     trailing_stop = int(math.ceil(market_price * 1.01))
-                    print(f"new trailing stop at {trailing_stop}")
-                else:
-                    print("market did not go down, keeping stop at same level")
+                    print(f"new trailing stop at {trailing_stop}", flush=True)
                 time.sleep(60)
 
 
