@@ -29,5 +29,7 @@ type OrderInput struct {
 
 type Trade struct {
 	TradedAt time.Time
-	Price    float64
+	Pair     string
+	// The price is denoted in quote amount
+	Price float64
 }
