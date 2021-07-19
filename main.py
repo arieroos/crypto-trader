@@ -39,6 +39,7 @@ def open_short_position():
         if short:
             if market_price >= trailing_stop:
                 close_short_positions()
+                short = False
             elif market_price <= lowest_market_price:
                 lowest_market_price = market_price
                 trailing_stop = int(math.ceil(market_price * stop_adjustment))
