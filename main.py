@@ -46,6 +46,8 @@ def open_short_position():
 
         time.sleep(60)
 
+    log("Trend is up again")
+
 
 def close_short_positions():
     valr.close_open_buys()
@@ -63,7 +65,7 @@ if __name__ == "__main__":
     price = market_summary["lastTradedPrice"]
     redis_lib.save_price(price)
 
-    long_periods, short_periods = 20, 5  # TODO: config
+    long_periods, short_periods = 24, 6  # TODO: config
     long_prices, short_prices = redis_lib.last_prices(long_periods), redis_lib.last_prices(short_periods)
     if len(long_prices) != long_periods:
         log("incomplete data, not trading")
