@@ -35,8 +35,7 @@ def open_short_position():
             trailing_stop = sell_price * stop_adjustment
             log(f"New trailing stop at {trailing_stop}")
             lowest_market_price = sell_price
-
-        if short:
+        elif short:
             if market_price >= trailing_stop:
                 close_short_positions()
                 short = False
