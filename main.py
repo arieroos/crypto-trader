@@ -13,44 +13,51 @@ DOWN_TREND = "down"
 UP_TREND = "up"
 
 
-def open_short_position():
-    sell_price = valr.sell_at_market()
-    print(f"Sold at {sell_price}")
-    buy_price = int(math.ceil(0.97 * sell_price))
-    print(f"Attempting to buy at {buy_price}")
-    oid = valr.buy_order(buy_price)
-    if valr.order_placed(oid):
-        print(f"Buy order successfully placed: {oid}")
+def log(msg: str):
+    print(f"[{datetime.now()}] {msg}", flush=True)
 
-        stop_multiplier = 1.015
-        trailing_stop = int(math.ceil(stop_multiplier * sell_price))
-        lowest_market_price = sell_price
-        while redis_lib.last_trend() == DOWN_TREND:
-            market_price = float(valr.market_summary()["lastTradedPrice"])
+
+def open_short_position():
+    lowest_market_price = None
+    short = False
+    trailing_stop = 0
+    stop_adjustment = 1 + (0.75 / 100)
+
+    while redis_lib.last_trend() == DOWN_TREND:
+        market_price = float(valr.market_summary()["lastTradedPrice"])
+        if not lowest_market_price:
+            lowest_market_price = market_price
+
+        if not short and market_price <= lowest_market_price:
+            sell_price = valr.sell_at_market()
+            log(f"Sold at {sell_price}")
+            short = True
+            trailing_stop = sell_price * stop_adjustment
+            log(f"New trailing stop at {trailing_stop}")
+            lowest_market_price = sell_price
+
+        if short:
             if market_price >= trailing_stop:
                 close_short_positions()
-                break
-            else:
-                if market_price < lowest_market_price:
-                    lowest_market_price = market_price
-                    trailing_stop = int(math.ceil(market_price * stop_multiplier))
-                    print(f"new trailing stop at {trailing_stop}", flush=True)
-                time.sleep(60)
+            elif market_price <= lowest_market_price:
+                lowest_market_price = market_price
+                trailing_stop = int(math.ceil(market_price * stop_adjustment))
+                log(f"New trailing stop at {trailing_stop}")
+
+        time.sleep(60)
 
 
 def close_short_positions():
     valr.close_open_buys()
     try:
         bp = valr.buy_at_market()
-        print(f"Bought at {bp}")
+        log(f"Bought at {bp}")
     except Exception as err:
         error_handler.handle_exception(err)
 
 
 if __name__ == "__main__":
     sys.excepthook = error_handler.excepthook
-
-    print(datetime.now())
 
     market_summary = valr.market_summary()
     price = market_summary["lastTradedPrice"]
@@ -59,10 +66,10 @@ if __name__ == "__main__":
     long_periods, short_periods = 20, 5  # TODO: config
     long_prices, short_prices = redis_lib.last_prices(long_periods), redis_lib.last_prices(short_periods)
     if len(long_prices) != long_periods:
-        print("incomplete data, not trading")
+        log("incomplete data, not trading")
         redis_lib.save_trend(UNKNOWN_TREND)
         exit()
-    print(f"long prices: {long_prices}")
+    log(f"Long prices: {long_prices}")
 
     long_mean, short_mean = statistics.mean(long_prices), statistics.mean(short_prices)
 
@@ -74,15 +81,14 @@ if __name__ == "__main__":
     else:
         trend = last_trend
     redis_lib.save_trend(trend)
-    print(f"Last trend: {last_trend}")
-    print(f"Current trend: {trend}")
+    log(f"Last trend: {last_trend}")
+    log(f"Current trend: {trend}")
 
     if trend == last_trend or last_trend == UNKNOWN_TREND:
-        print("No change in trend: not trading")
+        log("No change in trend: not trading")
         exit()
     if trend == UP_TREND:
-        print("BUY SIGNAL: closing short positions")
-        close_short_positions()
+        log("BUY SIGNAL: short positions should close by themselves")
     elif trend == DOWN_TREND:
-        print("SELL SIGNAL: opening short position")
+        log("SELL SIGNAL: opening short position")
         open_short_position()
