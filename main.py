@@ -90,7 +90,8 @@ if __name__ == "__main__":
         log("No change in trend: not trading")
         exit()
     if trend == UP_TREND:
-        log("BUY SIGNAL: short positions should close by themselves")
+        log("BUY SIGNAL: closing short positions")
+        close_short_positions()
     elif trend == DOWN_TREND:
         log("SELL SIGNAL: opening short position")
         open_short_position()
