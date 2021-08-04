@@ -21,7 +21,7 @@ def open_short_position():
     lowest_market_price = None
     short = False
     trailing_stop = 0
-    stop_adjustment = 1 + (0.75 / 100)
+    stop_adjustment = 1 + (0.5 / 100)
 
     while redis_lib.last_trend() == DOWN_TREND:
         market_price = float(valr.market_summary()["lastTradedPrice"])
