@@ -21,7 +21,9 @@ def open_short_position():
     lowest_market_price = None
     short = False
     trailing_stop = 0
-    stop_adjustment = 1 + (0.5 / 100)
+    percentage = 0.5 / 100
+    buy_adjustment = 1 - percentage
+    stop_adjustment = 1 + percentage
 
     while redis_lib.last_trend() == DOWN_TREND:
         market_price = float(valr.market_summary()["lastTradedPrice"])
@@ -32,12 +34,18 @@ def open_short_position():
             sell_price = valr.sell_at_market()
             log(f"Sold at {sell_price}")
             short = True
+            buy_price = sell_price * buy_adjustment
+            valr.buy_order(buy_price)
+            log(f"Buy order placed at {buy_price}")
+
             trailing_stop = sell_price * stop_adjustment
             log(f"New trailing stop at {trailing_stop}")
             lowest_market_price = sell_price
         elif short:
             if market_price >= trailing_stop:
                 close_short_positions()
+                short = False
+            elif len(valr.get_open_orders()) == 0:
                 short = False
             elif market_price <= lowest_market_price:
                 lowest_market_price = market_price
