@@ -150,6 +150,7 @@ def buy_order(price: int) -> str:
     headers = gen_headers("POST", path, body_str)
 
     resp = requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
+    check_response(resp)
     return resp.json()["id"]
 
 
