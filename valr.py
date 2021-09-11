@@ -151,7 +151,10 @@ def buy_order(price: int) -> str:
 
     resp = requests.post(url=f"{URL}{path}", data=body_str, headers=headers)
     check_response(resp)
-    return resp.json()["id"]
+    try:
+        return resp.json()["id"]
+    except KeyError:
+        raise Exception(orjson.loads(resp.text)["message"])
 
 
 def order_placed(oid: str) -> bool:
