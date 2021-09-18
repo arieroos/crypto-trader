@@ -21,7 +21,7 @@ def open_short_position():
     lowest_market_price = None
     short = False
     trailing_stop = 0
-    percentage = 0.5 / 100
+    percentage = 0.5 / 100.0
     buy_adjustment = 1 - percentage
     stop_adjustment = 1 + percentage
 
@@ -35,8 +35,9 @@ def open_short_position():
             log(f"Sold at {sell_price}")
             short = True
             buy_price = sell_price * buy_adjustment
+            log(f"Placing buy order at {buy_price}")
             valr.buy_order(buy_price)
-            log(f"Buy order placed at {buy_price}")
+            log("Buy order placed")
 
             trailing_stop = sell_price * stop_adjustment
             log(f"New trailing stop at {trailing_stop}")
