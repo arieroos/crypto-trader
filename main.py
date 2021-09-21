@@ -21,7 +21,7 @@ def open_short_position():
     lowest_market_price = None
     short = False
     trailing_stop = 0
-    percentage = 0.5 / 100.0
+    percentage = 1.0 / 100.0
     buy_adjustment = 1 - percentage
     stop_adjustment = 1 + percentage
 
