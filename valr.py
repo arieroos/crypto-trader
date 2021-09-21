@@ -134,6 +134,7 @@ def sell_at_market():
 
 
 def buy_order(price: int) -> str:
+    price = int(price)
     qty = balance("ZAR") / price
     if qty == 0:
         raise Exception("Trying to buy 0 bitcoin?")
