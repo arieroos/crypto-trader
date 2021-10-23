@@ -17,56 +17,6 @@ def log(msg: str):
     print(f"[{datetime.now()}] {msg}", flush=True)
 
 
-def open_short_position():
-    lowest_market_price = None
-    short = False
-    trailing_stop = 0
-    percentage = 1.0 / 100.0
-    buy_adjustment = 1 - percentage
-    stop_adjustment = 1 + percentage
-
-    while redis_lib.last_trend() == DOWN_TREND:
-        market_price = float(valr.market_summary()["lastTradedPrice"])
-        if not lowest_market_price:
-            lowest_market_price = market_price
-
-        if not short and market_price <= lowest_market_price:
-            sell_price = valr.sell_at_market()
-            log(f"Sold at {sell_price}")
-            short = True
-            buy_price = sell_price * buy_adjustment
-            log(f"Placing buy order at {buy_price}")
-            valr.buy_order(buy_price)
-            log("Buy order placed")
-
-            trailing_stop = sell_price * stop_adjustment
-            log(f"New trailing stop at {trailing_stop}")
-            lowest_market_price = sell_price
-        elif short:
-            if market_price >= trailing_stop:
-                close_short_positions()
-                short = False
-            elif len(valr.get_open_orders()) == 0:
-                short = False
-            elif market_price <= lowest_market_price:
-                lowest_market_price = market_price
-                trailing_stop = int(math.ceil(market_price * stop_adjustment))
-                log(f"New trailing stop at {trailing_stop}")
-
-        time.sleep(60)
-
-    log("Trend is up again")
-
-
-def close_short_positions():
-    valr.close_open_buys()
-    try:
-        bp = valr.buy_at_market()
-        log(f"Bought at {bp}")
-    except Exception as err:
-        error_handler.handle_exception(err)
-
-
 if __name__ == "__main__":
     sys.excepthook = error_handler.excepthook
 
@@ -99,8 +49,16 @@ if __name__ == "__main__":
         log("No change in trend: not trading")
         exit()
     if trend == UP_TREND:
-        log("BUY SIGNAL: closing short positions")
-        close_short_positions()
+        log("BUY SIGNAL: doing nothing. whatever")
     elif trend == DOWN_TREND:
         log("SELL SIGNAL: opening short position")
-        open_short_position()
+
+        sell_price = valr.sell_at_market()
+        log(f"Sold at {sell_price}")
+
+        percentage = 0.5 / 100.0
+        buy_adjustment = 1 - percentage
+        buy_price = sell_price * buy_adjustment
+        log(f"Placing buy order at {buy_price}")
+        valr.buy_order(buy_price)
+        log("Buy order placed")
