@@ -1,11 +1,7 @@
-import math
-import statistics
 import sys
-import time
 from datetime import datetime
 
 import error_handler
-import redis_lib
 import valr
 
 UNKNOWN_TREND = "unknown"
@@ -20,45 +16,21 @@ def log(msg: str):
 if __name__ == "__main__":
     sys.excepthook = error_handler.excepthook
 
-    market_summary = valr.market_summary()
-    price = market_summary["lastTradedPrice"]
-    redis_lib.save_price(price)
+    orders = [x for x in valr.get_open_orders() if x["side"].upper() == "BUY"]
+    if len(orders) > 0:
+        log("open orders found: closing")
+        valr.close_open_buys()
 
-    long_periods, short_periods = 24, 6  # TODO: config
-    long_prices, short_prices = redis_lib.last_prices(long_periods), redis_lib.last_prices(short_periods)
-    if len(long_prices) != long_periods:
-        log("incomplete data, not trading")
-        redis_lib.save_trend(UNKNOWN_TREND)
-        exit()
-    log(f"Long prices: {long_prices}")
-
-    long_mean, short_mean = statistics.mean(long_prices), statistics.mean(short_prices)
-
-    last_trend = redis_lib.last_trend() or UNKNOWN_TREND
-    if short_mean < long_mean:
-        trend = DOWN_TREND
-    elif short_mean > long_mean:
-        trend = UP_TREND
+        market_summary = valr.market_summary()
+        base_price = market_summary["lastTradedPrice"]
     else:
-        trend = last_trend
-    redis_lib.save_trend(trend)
-    log(f"Last trend: {last_trend}")
-    log(f"Current trend: {trend}")
-
-    if trend == last_trend or last_trend == UNKNOWN_TREND:
-        log("No change in trend: not trading")
-        exit()
-    if trend == UP_TREND:
-        log("BUY SIGNAL: doing nothing. whatever")
-    elif trend == DOWN_TREND:
-        log("SELL SIGNAL: opening short position")
-
         sell_price = valr.sell_at_market()
         log(f"Sold at {sell_price}")
+        base_price = sell_price
 
-        percentage = 0.5 / 100.0
-        buy_adjustment = 1 - percentage
-        buy_price = sell_price * buy_adjustment
-        log(f"Placing buy order at {buy_price}")
-        valr.buy_order(buy_price)
-        log("Buy order placed")
+    percentage = 0.33 / 100.0
+    buy_adjustment = 1 - percentage
+    buy_price = base_price * buy_adjustment
+    log(f"Placing buy order at {buy_price}")
+    valr.buy_order(buy_price)
+    log("Buy order placed")
