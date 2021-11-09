@@ -22,7 +22,7 @@ if __name__ == "__main__":
         valr.close_open_buys()
 
         market_summary = valr.market_summary()
-        base_price = market_summary["lastTradedPrice"]
+        base_price = float(market_summary["lastTradedPrice"])
     else:
         sell_price = valr.sell_at_market()
         log(f"Sold at {sell_price}")
