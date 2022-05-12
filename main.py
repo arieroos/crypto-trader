@@ -3,10 +3,10 @@ from datetime import datetime
 
 import error_handler
 import valr
+from extra_math import floor_n
 
-UNKNOWN_TREND = "unknown"
-DOWN_TREND = "down"
-UP_TREND = "up"
+MIN_ZAR = 50
+PERCENTAGE_TRADE = 0.5
 
 
 def log(msg: str):
@@ -16,21 +16,23 @@ def log(msg: str):
 if __name__ == "__main__":
     sys.excepthook = error_handler.excepthook
 
-    orders = [x for x in valr.get_open_orders() if x["side"].upper() == "BUY"]
-    if len(orders) > 0:
-        log("open orders found: closing")
-        valr.close_open_buys()
+    zar_bal = floor_n(valr.balance("ZAR"), 2)
+    if zar_bal < MIN_ZAR:
+        log(f"Current balance of R{zar_bal} is too small, less than {MIN_ZAR}, doing nothing")
+        exit()
 
-        market_summary = valr.market_summary()
-        base_price = float(market_summary["lastTradedPrice"])
+    buy_amt = floor_n(zar_bal / 4, 2)
+    if buy_amt < MIN_ZAR:
+        buy_amt = float(MIN_ZAR)
+    log(f"Buying R{buy_amt} worth of BTC at market")
+    price = valr.buy_at_market(buy_amt)
+    btc_bal = valr.balance("BTC")
+    log(f"Bought BTC{btc_bal} at R{price}")
+
+    new_price = int(price * (1 + (float(PERCENTAGE_TRADE) / 100.0)))
+    log(f"Placing a sell order at R{new_price}")
+    order = valr.limit_order(False, new_price, btc_bal)
+    if not valr.order_placed(order):
+        log(f"Order {order} failed")
     else:
-        sell_price = valr.sell_at_market()
-        log(f"Sold at {sell_price}")
-        base_price = sell_price
-
-    percentage = 0.33 / 100.0
-    buy_adjustment = 1 - percentage
-    buy_price = base_price * buy_adjustment
-    log(f"Placing buy order at {buy_price}")
-    valr.buy_order(buy_price)
-    log("Buy order placed")
+        log(f"Order {order} successful")

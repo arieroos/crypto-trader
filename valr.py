@@ -103,8 +103,8 @@ def market_order_req(body):
     return float(o_sum["averagePrice"])
 
 
-def buy_at_market():
-    amt = balance("ZAR")
+def buy_at_market(amt):
+    amt = amt or balance("ZAR")
     if amt == 0:
         raise Exception("Trying to buy 0 ZAR of bitcoin?")
     print(f"Buying at market for R{amt}")
@@ -133,15 +133,9 @@ def sell_at_market():
     return market_order_req(body)
 
 
-def buy_order(price: int) -> str:
-    price = int(price)
-    qty = balance("ZAR") / price
-    if qty == 0:
-        raise Exception("Trying to buy 0 bitcoin?")
-
-    qty = extra_math.floor_n(qty, 8)
+def limit_order(buy: bool, price: int, qty: float):
     body = {
-        "side": "BUY",
+        "side": "BUY" if buy else "SELL",
         "quantity": f"{qty:.8f}",
         "price": str(price),
         "pair": "BTCZAR",
