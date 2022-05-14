@@ -3,7 +3,7 @@ from datetime import datetime
 
 import error_handler
 import valr
-from extra_math import floor_n
+from extra_math import floor_n, subtract_nth_decimal
 
 MIN_ZAR = 50
 PERCENTAGE_TRADE = 0.5
@@ -26,12 +26,15 @@ if __name__ == "__main__":
         buy_amt = float(MIN_ZAR)
     log(f"Buying R{buy_amt} worth of BTC at market")
     price = valr.buy_at_market(buy_amt)
-    btc_bal = valr.balance("BTC")
+    btc_bal = floor_n(valr.balance("BTC"))
     log(f"Bought BTC{btc_bal} at R{price}")
 
     new_price = int(price * (1 + (float(PERCENTAGE_TRADE) / 100.0)))
-    log(f"Placing a sell order at R{new_price}")
-    order = valr.limit_order(False, new_price, btc_bal)
+    btc_bal = subtract_nth_decimal(btc_bal, 8)
+    # I had two occurrences where the balance I got back from VALR was exactly one sat too high.
+    # I'd rather have a trade go through with one sat less than it can, than not have it go through at all.
+    log(f"Placing a sell order for BTC{btc_bal} at R{new_price}")
+    order = valr.limit_order(False, new_price, floor_n(btc_bal, 7))
     if not valr.order_placed(order):
         log(f"Order {order} failed")
     else:
