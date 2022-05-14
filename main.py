@@ -1,4 +1,5 @@
 import sys
+import time
 from datetime import datetime
 
 import error_handler
@@ -26,6 +27,10 @@ if __name__ == "__main__":
         buy_amt = float(MIN_ZAR)
     log(f"Buying R{buy_amt} worth of BTC at market")
     price = valr.buy_at_market(buy_amt)
+
+    # I had issues where VALR reported a higher btc balance than I actually had.
+    # I suspect they haven't subtracted my fees yet. So let's give them some time.
+    time.sleep(0.25)
     btc_bal = floor_n(valr.balance("BTC"))
     log(f"Bought BTC{btc_bal} at R{price}")
 
